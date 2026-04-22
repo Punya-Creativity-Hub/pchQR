@@ -41,7 +41,7 @@ body{
   padding: 15px;
 }
 
-/* 🔥 Main Container */
+/* Container */
 .qr-container{
   width: 370px;
   max-width: 100%;
@@ -58,12 +58,9 @@ body{
 .logo{
   width: 100px;
   margin-bottom: 10px;
-  transition: 0.4s;
-}
-.logo:hover{
-  transform: scale(1.1) rotate(6deg);
 }
 
+/* Text */
 h1{
   font-size: 22px;
   margin-bottom: 6px;
@@ -75,26 +72,54 @@ p{
   margin-bottom: 18px;
 }
 
-/* Input */
+/* INPUT GROUP */
 .input-group{
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.input-group input{
+/* INPUT WRAPPER WITH PASTE BUTTON */
+.input-wrapper{
+  position: relative;
+  width: 100%;
+}
+
+.input-wrapper input{
   width: 100%;
   height: 50px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.25);
   background: rgba(255,255,255,0.12);
   color: white;
-  padding: 0 14px;
+  padding: 0 45px 0 14px;
   outline: none;
 }
 
-.input-group input::placeholder{
+/* Placeholder */
+.input-wrapper input::placeholder{
   color: rgba(255,255,255,0.6);
+}
+
+/* 📋 Paste Button */
+.paste-btn{
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0,0,0,0.3);
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.paste-btn:hover{
+  background: rgba(58,134,255,0.9);
 }
 
 /* Buttons */
@@ -130,7 +155,6 @@ button{
 #qrBox{
   margin-top: 20px;
   display: none;
-  display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
@@ -181,7 +205,7 @@ button{
   pointer-events: none;
 }
 
-/* 📱 MOBILE RESPONSIVE */
+/* MOBILE */
 @media (max-width: 480px){
   .qr-container{
     width: 95%;
@@ -190,16 +214,6 @@ button{
 
   .logo{
     width: 80px;
-  }
-
-  h1{
-    font-size: 20px;
-  }
-
-  #qrBox canvas,
-  #qrBox svg{
-    max-width: 100%;
-    height: auto;
   }
 }
 </style>
@@ -214,12 +228,20 @@ button{
   <h1>QR Generator</h1>
   <p>Create smart QR codes</p>
 
+  <!-- INPUT WITH PASTE -->
   <div class="input-group">
-    <input type="text" id="text" placeholder="Enter text or URL">
+
+    <div class="input-wrapper">
+      <input type="text" id="text" placeholder="Enter text or URL">
+      <button class="paste-btn" onclick="pasteText()">📋</button>
+    </div>
+
     <button class="btn-primary" onclick="generateQR()">Generate QR</button>
   </div>
 
+  <!-- CONTROLS -->
   <div id="controls">
+
     <div class="control-row">
       <select id="style" onchange="updateQR()">
         <option value="dots">Rounded</option>
@@ -245,6 +267,17 @@ button{
 <script>
 let qrCode;
 
+/* 📋 Paste Function */
+async function pasteText() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById("text").value = text;
+  } catch (err) {
+    alert("Clipboard access not allowed in this browser.");
+  }
+}
+
+/* QR Generate */
 function generateQR() {
   let text = document.getElementById("text").value;
 
@@ -259,7 +292,6 @@ function generateQR() {
   box.style.display = "flex";
   document.getElementById("controls").style.display = "block";
 
-  // 📱 RESPONSIVE SIZE
   let size = Math.min(box.offsetWidth || 300, 320);
 
   qrCode = new QRCodeStyling({
@@ -292,6 +324,7 @@ function generateQR() {
   qrCode.append(box);
 }
 
+/* Update QR */
 function updateQR() {
   if (!qrCode) return;
 
@@ -303,6 +336,7 @@ function updateQR() {
   });
 }
 
+/* Download */
 function downloadQR() {
   qrCode.download({
     name: "pch-qr",
