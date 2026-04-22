@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCH QR Generator</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary-blue:#3a86ff;
+  --primary-orange:#f3722c;
+
+  --bg1:#195591;
+  --bg2:#243B55;
+
+  --text: rgba(255,255,255,0.95);
+  --muted: rgba(255,255,255,0.7);
+
+  --glass: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.2);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Poppins', sans-serif;
+}
+
+body{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(var(--bg1), var(--bg2));
+  color: var(--text);
+  padding: 15px;
+}
+
+/* 🔥 Main Container */
+.qr-container{
+  width: 370px;
+  max-width: 100%;
+  padding: 25px;
+  border-radius: 22px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+/* Logo */
+.logo{
+  width: 100px;
+  margin-bottom: 10px;
+  transition: 0.4s;
+}
+.logo:hover{
+  transform: scale(1.1) rotate(6deg);
+}
+
+h1{
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+p{
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+/* Input */
+.input-group{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-group input{
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  padding: 0 14px;
+  outline: none;
+}
+
+.input-group input::placeholder{
+  color: rgba(255,255,255,0.6);
+}
+
+/* Buttons */
+button{
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-primary{
+  background: var(--primary-blue);
+  color: white;
+}
+
+.btn-primary:hover{
+  background: #2563eb;
+}
+
+.btn-secondary{
+  background: var(--primary-orange);
+  color: white;
+}
+
+.btn-secondary:hover{
+  background: #d65a1f;
+}
+
+/* QR Box */
+#qrBox{
+  margin-top: 20px;
+  display: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Controls */
+#controls{
+  display: none;
+  margin-top: 20px;
+}
+
+.control-row{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.control-row select{
+  flex: 1;
+  height: 45px;
+  border-radius: 10px;
+  border: none;
+}
+
+/* Color Picker */
+.color-picker{
+  position: relative;
+  flex: 1;
+  height: 45px;
+}
+
+.color-picker input{
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.color-icon{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.3);
+  padding: 5px 7px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* 📱 MOBILE RESPONSIVE */
+@media (max-width: 480px){
+  .qr-container{
+    width: 95%;
+    padding: 18px;
+  }
+
+  .logo{
+    width: 80px;
+  }
+
+  h1{
+    font-size: 20px;
+  }
+
+  #qrBox canvas,
+  #qrBox svg{
+    max-width: 100%;
+    height: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="qr-container">
+
+  <img src="./image/lo.png" class="logo">
+
+  <h1>QR Generator</h1>
+  <p>Create smart QR codes</p>
+
+  <div class="input-group">
+    <input type="text" id="text" placeholder="Enter text or URL">
+    <button class="btn-primary" onclick="generateQR()">Generate QR</button>
+  </div>
+
+  <div id="controls">
+    <div class="control-row">
+      <select id="style" onchange="updateQR()">
+        <option value="dots">Rounded</option>
+        <option value="square">Square</option>
+        <option value="extra-rounded">Extra Round</option>
+        <option value="classy">Classy</option>
+        <option value="classy-rounded">Classy Round</option>
+      </select>
+
+      <div class="color-picker">
+        <input type="color" id="color" value="#3a86ff" onchange="updateQR()">
+        <span class="color-icon">🎨</span>
+      </div>
+    </div>
+
+    <button class="btn-secondary" onclick="downloadQR()">Download QR</button>
+  </div>
+
+  <div id="qrBox"></div>
+
+</div>
+
+<script>
+let qrCode;
+
+function generateQR() {
+  let text = document.getElementById("text").value;
+
+  if (!text.trim()) {
+    alert("Enter text or URL");
+    return;
+  }
+
+  const box = document.getElementById("qrBox");
+
+  box.innerHTML = "";
+  box.style.display = "flex";
+  document.getElementById("controls").style.display = "block";
+
+  // 📱 RESPONSIVE SIZE
+  let size = Math.min(box.offsetWidth || 300, 320);
+
+  qrCode = new QRCodeStyling({
+    width: size,
+    height: size,
+    data: text,
+
+    qrOptions: {
+      errorCorrectionLevel: "H"
+    },
+
+    dotsOptions: {
+      color: document.getElementById("color").value,
+      type: "dots"
+    },
+
+    backgroundOptions: {
+      color: "transparent"
+    },
+
+    image: "./image/lo.png",
+
+    imageOptions: {
+      margin: 4,
+      imageSize: 0.3,
+      hideBackgroundDots: true
+    }
+  });
+
+  qrCode.append(box);
+}
+
+function updateQR() {
+  if (!qrCode) return;
+
+  qrCode.update({
+    dotsOptions: {
+      color: document.getElementById("color").value,
+      type: document.getElementById("style").value
+    }
+  });
+}
+
+function downloadQR() {
+  qrCode.download({
+    name: "pch-qr",
+    extension: "png"
+  });
+}
+</script>
+
+</body>
+</html>
