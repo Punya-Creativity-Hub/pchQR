@@ -3,7 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ✅ FIXED viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
     <title>PCH QR Generator</title>
 
     <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
@@ -16,13 +19,10 @@
         :root {
             --primary-blue: #3a86ff;
             --primary-orange: #f3722c;
-
             --bg1: #195591;
             --bg2: #243B55;
-
             --text: rgba(255, 255, 255, 0.95);
             --muted: rgba(255, 255, 255, 0.7);
-
             --glass: rgba(255, 255, 255, 0.08);
             --border: rgba(255, 255, 255, 0.2);
         }
@@ -37,15 +37,14 @@
         body {
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* FIX */
-            justify-content: space-between; /* FIX */
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
             background: linear-gradient(var(--bg1), var(--bg2));
             color: var(--text);
             padding: 15px;
         }
 
-        /* MAIN CENTER AREA */
         .main {
             flex: 1;
             display: flex;
@@ -54,7 +53,6 @@
             width: 100%;
         }
 
-        /* Container */
         .qr-container {
             width: 370px;
             max-width: 100%;
@@ -103,6 +101,9 @@
             color: white;
             padding: 0 45px 0 14px;
             outline: none;
+
+            /* ✅ FIX: prevents mobile zoom */
+            font-size: 16px;
         }
 
         .input-wrapper input::placeholder {
@@ -120,13 +121,7 @@
             border: none;
             background: rgba(0, 0, 0, 0.3);
             color: white;
-            font-size: 14px;
             cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .paste-btn:hover {
-            background: rgba(58, 134, 255, 0.9);
         }
 
         button {
@@ -136,7 +131,6 @@
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
         }
 
         .btn-primary {
@@ -144,17 +138,9 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-
         .btn-secondary {
             background: var(--primary-orange);
             color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #d65a1f;
         }
 
         #qrBox {
@@ -162,7 +148,6 @@
             display: none;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
         }
 
         #controls {
@@ -180,7 +165,6 @@
             flex: 1;
             height: 45px;
             border-radius: 10px;
-            border: none;
         }
 
         .color-picker {
@@ -194,7 +178,6 @@
             height: 100%;
             border-radius: 10px;
             border: none;
-            cursor: pointer;
         }
 
         .color-icon {
@@ -202,14 +185,12 @@
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 5px 7px;
-            border-radius: 8px;
         }
 
+        /* ✅ Responsive fix */
         @media (max-width: 480px) {
             .qr-container {
-                width: 95%;
+                width: 100%;
                 padding: 18px;
             }
 
@@ -218,14 +199,13 @@
             }
         }
 
-        /* Footer */
+        /* ✅ FIXED FOOTER */
         .footer {
-            /* margin: 0px 0; */
             display: flex;
             justify-content: center;
             gap: 15px;
             background: #080767;
-            width: 120%;
+            width: 100%; /* FIX */
             height: 60px;
             align-items: center;
             margin-top: 20px;
@@ -243,27 +223,6 @@
             color: white;
             font-size: 18px;
             text-decoration: none;
-            transition: 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .social:hover {
-            transform: translateY(-4px) scale(1.1);
-        }
-
-        .social.fb:hover {
-            background: rgba(24, 119, 242, 0.4);
-            color: #1877f2;
-        }
-
-        .social.ig:hover {
-            background: rgba(225, 48, 108, 0.4);
-            color: #e1306c;
-        }
-
-        .social.tt:hover {
-            background: rgba(0, 0, 0, 0.4);
-            color: #ffffff;
         }
     </style>
 </head>
@@ -312,17 +271,9 @@
     </div>
 
     <footer class="footer">
-        <a href="https://facebook.com" target="_blank" class="social fb">
-            <i class="fa-brands fa-facebook-f"></i>
-        </a>
-
-        <a href="https://instagram.com" target="_blank" class="social ig">
-            <i class="fa-brands fa-instagram"></i>
-        </a>
-
-        <a href="https://tiktok.com" target="_blank" class="social tt">
-            <i class="fa-brands fa-tiktok"></i>
-        </a>
+        <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
     </footer>
 
     <script>
@@ -332,43 +283,29 @@
             try {
                 const text = await navigator.clipboard.readText();
                 document.getElementById("text").value = text;
-            } catch (err) {
-                alert("Clipboard access not allowed in this browser.");
+            } catch {
+                alert("Clipboard not allowed");
             }
         }
 
         function generateQR() {
             let text = document.getElementById("text").value;
-
-            if (!text.trim()) {
-                alert("Enter text or URL");
-                return;
-            }
+            if (!text.trim()) return alert("Enter text");
 
             const box = document.getElementById("qrBox");
-
             box.innerHTML = "";
             box.style.display = "flex";
             document.getElementById("controls").style.display = "block";
 
-            let size = Math.min(box.offsetWidth || 300, 320);
-
             qrCode = new QRCodeStyling({
-                width: size,
-                height: size,
+                width: 280,
+                height: 280,
                 data: text,
-                qrOptions: { errorCorrectionLevel: "H" },
                 dotsOptions: {
                     color: document.getElementById("color").value,
                     type: "dots"
                 },
-                backgroundOptions: { color: "transparent" },
-                image: "./image/lo.png",
-                imageOptions: {
-                    margin: 4,
-                    imageSize: 0.3,
-                    hideBackgroundDots: true
-                }
+                backgroundOptions: { color: "transparent" }
             });
 
             qrCode.append(box);
@@ -387,7 +324,7 @@
 
         function downloadQR() {
             qrCode.download({
-                name: "pch-qr",
+                name: "qr-code",
                 extension: "png"
             });
         }
