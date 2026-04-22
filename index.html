@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- ✅ FIXED viewport -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <!-- (kept same, only small fix for mobile zoom) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>PCH QR Generator</title>
 
@@ -19,10 +19,13 @@
         :root {
             --primary-blue: #3a86ff;
             --primary-orange: #f3722c;
+
             --bg1: #195591;
             --bg2: #243B55;
+
             --text: rgba(255, 255, 255, 0.95);
             --muted: rgba(255, 255, 255, 0.7);
+
             --glass: rgba(255, 255, 255, 0.08);
             --border: rgba(255, 255, 255, 0.2);
         }
@@ -102,7 +105,7 @@
             padding: 0 45px 0 14px;
             outline: none;
 
-            /* ✅ FIX: prevents mobile zoom */
+            /* ✅ prevents mobile zoom */
             font-size: 16px;
         }
 
@@ -121,6 +124,7 @@
             border: none;
             background: rgba(0, 0, 0, 0.3);
             color: white;
+            font-size: 14px;
             cursor: pointer;
         }
 
@@ -187,10 +191,9 @@
             transform: translateY(-50%);
         }
 
-        /* ✅ Responsive fix */
         @media (max-width: 480px) {
             .qr-container {
-                width: 100%;
+                width: 95%;
                 padding: 18px;
             }
 
@@ -199,13 +202,12 @@
             }
         }
 
-        /* ✅ FIXED FOOTER */
         .footer {
             display: flex;
             justify-content: center;
             gap: 15px;
             background: #080767;
-            width: 100%; /* FIX */
+            width: 100%;
             height: 60px;
             align-items: center;
             margin-top: 20px;
@@ -271,6 +273,7 @@
     </div>
 
     <footer class="footer">
+        <a href="#" class="social"><i class="fa-solid fa-globe"></i></a>
         <a href="#" class="social"><i class="fa-brands fa-facebook-f"></i></a>
         <a href="#" class="social"><i class="fa-brands fa-instagram"></i></a>
         <a href="#" class="social"><i class="fa-brands fa-tiktok"></i></a>
@@ -283,29 +286,47 @@
             try {
                 const text = await navigator.clipboard.readText();
                 document.getElementById("text").value = text;
-            } catch {
-                alert("Clipboard not allowed");
+            } catch (err) {
+                alert("Clipboard access not allowed in this browser.");
             }
         }
 
         function generateQR() {
             let text = document.getElementById("text").value;
-            if (!text.trim()) return alert("Enter text");
+
+            if (!text.trim()) {
+                alert("Enter text or URL");
+                return;
+            }
 
             const box = document.getElementById("qrBox");
+
             box.innerHTML = "";
             box.style.display = "flex";
             document.getElementById("controls").style.display = "block";
 
+            let size = Math.min(box.offsetWidth || 300, 320);
+
             qrCode = new QRCodeStyling({
-                width: 280,
-                height: 280,
+                width: size,
+                height: size,
                 data: text,
+                qrOptions: { errorCorrectionLevel: "H" },
+
                 dotsOptions: {
                     color: document.getElementById("color").value,
                     type: "dots"
                 },
-                backgroundOptions: { color: "transparent" }
+
+                backgroundOptions: { color: "transparent" },
+
+                /* ✅ LOGO INSIDE QR (restored) */
+                image: "./image/lo.png",
+                imageOptions: {
+                    margin: 4,
+                    imageSize: 0.3,
+                    hideBackgroundDots: true
+                }
             });
 
             qrCode.append(box);
@@ -324,7 +345,7 @@
 
         function downloadQR() {
             qrCode.download({
-                name: "qr-code",
+                name: "pch-qr",
                 extension: "png"
             });
         }
